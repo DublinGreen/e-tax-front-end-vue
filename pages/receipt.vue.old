@@ -1,0 +1,340 @@
+<template>
+  <v-container class="dashboard-wrapper">
+    <div class="headline mb-5 font-weight-medium">
+      RECEIPT ISSUANCE
+      <v-btn
+        round
+        color="blue white--text"
+        v-if="receiptGenerated"
+        @click="resetSearchResults()"
+      >Click To Generate Another Receipt</v-btn>
+    </div>
+
+    <v-sheet class="pa-1 mb-4" style="opacity: 0.9" v-show="!receiptGenerated">
+      <div class="mb-3">Issue a New Receipt  <span class="caption">Fields marked with <span class="text-danger">*</span> are required</span></div>
+
+      <v-alert
+        :value="true"
+        type="error"
+        style="margin-bottom:40px;"
+        v-if="errors != null"
+      >
+        Please fix the following errors<br>
+        <ul v-if="typeof errors != 'string'">
+          <li v-for="(error, i) in errors" :key="i" >{{ error[0] }}</li>
+        </ul>
+        <span v-else>{{ errors }}</span>
+      </v-alert>
+
+      <v-form v-model="valid">
+      <v-layout row wrap>
+
+        <v-flex sm4 xs12 :pr-2="this.$vuetify.breakpoint.smAndUp">
+          <div class="caption font-weight-bold mb-1">Receipt Type <span class="text-danger">*</span></div>
+          <v-select
+            item-text="receiptType"
+            item-value="receiptValue"
+            :items="receiptTypes" outline
+            v-model="vselect.receiptType"
+            :rules="taxtypeRules">
+            <div slot="label" class="caption">Choose</div>
+          </v-select>
+        </v-flex>
+
+        <v-flex sm4 xs12 :pl-2="this.$vuetify.breakpoint.smAndUp">
+          <div class="caption font-weight-bold mb-1">
+            MDAID <span class="text-danger">*</span>
+            <v-progress-circular
+              v-show="fetching"
+              :width="1"
+              :size="11"
+              color="black"
+              indeterminate
+            ></v-progress-circular>
+          </div>
+
+          <v-select
+            outline
+            :items="offices"
+            item-text="Name"
+            item-value="MDAID"
+            label="Choose"
+            persistent-hint
+            return-object
+            single-line
+            v-model="vselect.mdaid"
+            :rules="mdaidRules"
+            required
+          ></v-select>
+        </v-flex>
+
+        <v-flex sm4 xs12 :pl-2="this.$vuetify.breakpoint.smAndUp">
+          <div class="caption font-weight-bold mb-1">
+            Receipt Category <span class="text-danger">*</span>
+            <v-progress-circular
+              v-show="fetching"
+              :width="1"
+              :size="11"
+              color="black"
+              indeterminate
+            ></v-progress-circular>
+          </div>
+          <v-select
+            outline
+            :items="receiptCategories"
+            item-text="Name"
+            item-value="ReceiptCategoryID"
+            label="Choose"
+            persistent-hint
+            return-object
+            single-line
+            v-model="vselect.receiptCategoryId"
+            :rules="receiptcategoryRules"
+            required
+          ></v-select>
+        </v-flex>
+
+        <v-flex
+          sm4
+          xs12
+          :pr-2="this.$vuetify.breakpoint.smAndUp"
+        >
+          <div class="caption font-weight-bold mb-1">Customer Type <span class="text-danger">*</span></div>
+          <v-select :items="customerType" outline v-model="receiptModel.CustomerType" :rules="customertypeRules" required>
+            <div slot="label" class="caption">Choose</div>
+          </v-select>
+        </v-flex>
+
+        <v-flex sm4 xs12 :pl-2="this.$vuetify.breakpoint.smAndUp">
+          <div class="caption font-weight-bold mb-1">ANSSID <span class="text-danger">*</span></div>
+          <v-text-field outline v-model="receiptModel.TaxPayerID" :rules="anssidRules" required>
+            <div slot="label" class="caption">Enter ANSSID</div>
+          </v-text-field>
+        </v-flex>
+
+        <v-flex sm4 xs12 :pl-2="this.$vuetify.breakpoint.smAndUp">
+          <div class="caption font-weight-bold mb-1">Payment Channel <span class="text-danger">*</span></div>
+          <v-select :items="paymentChannels" outline v-model="receiptModel.PaymentChannel">
+            <div slot="label" class="caption">Choose</div>
+          </v-select>
+        </v-flex>
+
+        <v-flex
+          sm4
+          xs12
+          :pr-2="this.$vuetify.breakpoint.smAndUp"
+        >
+          <div class="caption font-weight-bold mb-1">Payment Reference <span class="text-danger">*</span></div>
+          <v-text-field outline v-model="receiptModel.PaymentReference" :rules="paymentreferenceRules" required>
+          </v-text-field>
+        </v-flex>
+
+
+        <v-flex
+          sm2
+          xs12
+          :pl-4="this.$vuetify.breakpoint.smAndUp"
+        >
+        <div class="caption font-weight-bold mb-1">&nbsp;</div>
+          <v-btn
+            :loading="loading"
+            :disabled="loading || !valid"
+            block
+            flat
+            round
+            class="secondary caption"
+            @click="generateReceipt"
+          >Generate</v-btn>
+        </v-flex>
+
+      </v-layout>
+      </v-form>
+    </v-sheet>
+
+    <v-flex class="hidden-xs-only" v-show="receiptGenerated">
+      <Receipt id="receiptArea" :result="receipt" />
+      <v-layout mt-4 justify-center>
+        <v-btn
+          style="width: 200px"
+          flat
+          round
+          class="secondary caption"
+          @click="printReceipt('receiptArea')"
+        >Print Reciept</v-btn>
+      </v-layout>
+    </v-flex>
+  </v-container>
+</template>
+
+<style lang="scss" scoped>
+</style>
+
+<script>
+import Receipt from "~/components/receipt";
+import receiptCategories from "@/utils/route";
+import axios from "axios";
+import uuid from "uuid";
+
+var PHE = require("print-html-element");
+export default {
+  layout: "user",
+  components: {
+    Receipt
+  },
+  data() {
+    return {
+      valid: false,
+      date: new Date().toISOString().substr(0, 10),
+      fetching: false,
+      loading: false,
+      startDate: "",
+      dateMenu: false,
+      offices: [],
+      receiptCategories: [],
+      customerType: ["INDIVIDUAL", "CORPORATE", "INFORMAL BUSINESS"],
+      receiptTypes: [
+        {
+        receiptType: 'TAX',
+        receiptValue: 'TAX'
+        },
+        {
+        receiptType: 'NON-TAX',
+        receiptValue: 'NON_TAX'
+        }
+      ],
+      paymentChannels: ["Interswitch"],
+      errors: null,
+      receipt: {},
+      vselect: {
+        receiptType: '',
+        mdaid: '',
+        receiptCategoryId: ''
+      },
+      receiptModel: {
+        ReceiptType: "TAX",
+        MDAID: "",
+        CategoryID: "",
+        TaxPayerID: '', // 2041080394
+        CustomerType: "",
+        PaymentReference: "",
+        PaymentChannel: "Interswitch",
+      },
+      receiptGenerated: false,
+      taxtypeRules: [
+        v => !!v || 'Tax type is required',
+      ],
+      paymentreferenceRules: [
+        v => !!v || 'Payment Reference is required',
+      ],
+      receiptcategoryRules: [
+        v => !!v || 'Receipt category is required',
+      ],
+      mdaidRules: [
+        v => !!v || 'MDAID is required',
+      ],
+      anssidRules: [
+        v => !!v || 'ANSSID is required',
+      ],
+      customertypeRules: [
+        v => !!v || 'Customer type is required',
+      ],
+    };
+  },
+
+  mounted: function() {
+    this.getMDAID();
+    this.getReceiptCategories();
+    // this.getTaxPayerID();
+  },
+
+  computed: {
+    computedstartDate() {
+      return this.formatDate(this.date);
+    }
+  },
+
+  watch: {
+    date(val) {
+      this.startDate = this.formatDate(this.date);
+    }
+  },
+
+  methods: {
+    formatDate(date) {
+      if (!date) return null;
+
+      const [year, month, day] = date.split("-");
+      return `${month}/${day}/${year}`;
+    },
+    printReceipt(id) {
+      PHE.printElement(document.getElementById(id));
+    },
+    parseDate(date) {
+      if (!date) return null;
+
+      const [month, day, year] = date.split("/");
+      return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+    },
+    getMDAID() {
+      this.fetching = true;
+      this.$axios.$get("MDAs/getAll").then(
+        res => {
+          this.offices = res.data;
+          this.fetching = false;
+        },
+        error => {
+          this.fetching = false;
+        }
+      );
+    },
+    getReceiptCategories() {
+      this.fetching = true;
+      this.$axios.$get("ReceiptCategories/getAll").then(
+        res => {
+          this.receiptCategories = res.data;
+          this.fetching = false;
+        },
+        error => {
+          console.log(error.message);
+          this.fetching = false;
+        }
+      );
+    },
+    resetSearchResults() {
+      this.receiptGenerated = false;
+      this.receiptModel = {
+        PaymentChannel: "Interswitch",
+      };
+      this.receiptModel.PaymentChannel = "Interswitch";
+      this.errors = null;
+    },
+    generateReceipt() {
+      this.loading = true;
+      this.receiptModel.MDAID = this.vselect.mdaid.MDAID;
+      this.receiptModel.CategoryID = this.vselect.receiptCategoryId.ReceiptCategoryID;
+      this.receiptModel.ReceiptType = this.vselect.receiptType.receiptValue;
+      this.$axios.$post("Receipts/create", this.receiptModel).then(
+        res => {
+          this.$toast.success("Receipt successfully generated!");
+          this.loading = false;
+          this.receipt = res.data;
+          this.receiptGenerated = true;
+        },
+        error => {
+          this.loading = false;
+          this.errors = error.response.data.error;
+        }
+      );
+    }
+  },
+
+  created() {
+  },
+
+  computed: {
+    isEmpty() {
+      return isEmpty(this.errors)
+    }
+  }
+};
+</script>

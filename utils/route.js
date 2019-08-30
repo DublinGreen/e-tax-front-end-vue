@@ -1,0 +1,5 @@
+export const webAuthentication = 'Common/authenticate'
+export const webSignin = 'Common/sign-in'
+export const webFirstTimeResetPassword = 'Common/first-time-reset-password'
+export const registration = 'Common/Registration'
+export const receiptCategories = 'ReceiptCategories/getAll'

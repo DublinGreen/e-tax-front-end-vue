@@ -1,0 +1,82 @@
+/*!
+ * Chart.js v2.8.0
+ * https://www.chartjs.org
+ * (c) 2019 Chart.js Contributors
+ * Released under the MIT License
+ */
+
+/*!
+ * Vue.js v2.6.7
+ * (c) 2014-2019 Evan You
+ * Released under the MIT License.
+ */
+
+/**
+ * vuex v3.1.0
+ * (c) 2019 Evan You
+ * @license MIT
+ */
+
+/*!
+  * vue-router v3.0.2
+  * (c) 2018 Evan You
+  * @license MIT
+  */
+
+/**
+ * vue-meta v1.5.8
+ * (c) 2018 Declan de Wet & Sébastien Chopin (@Atinux)
+ * @license MIT
+ */
+
+/*
+	object-assign
+	(c) Sindre Sorhus
+	@license MIT
+	*/
+
+/*!
+ * Determine if an object is a Buffer
+ *
+ * @author   Feross Aboukhadijeh <https://feross.org>
+ * @license  MIT
+ */
+
+/*! @preserve
+ * numeral.js
+ * version : 2.0.6
+ * author : Adam Draper
+ * license : MIT
+ * http://adamwdraper.github.com/Numeral-js/
+ */
+
+/*!
+ * vue-no-ssr v1.1.1
+ * (c) 2018-present egoist <0x142857@gmail.com>
+ * Released under the MIT License.
+ */
+
+/*!
+ * Number-To-Words util
+ * @version v1.2.4
+ * @link https://github.com/marlun78/number-to-words
+ * @author Martin Eneqvist (https://github.com/marlun78)
+ * @contributors Aleksey Pilyugin (https://github.com/pilyugin),Jeremiah Hall (https://github.com/jeremiahrhall),Adriano Melo (https://github.com/adrianomelo),dmrzn (https://github.com/dmrzn)
+ * @license MIT
+ */
+
+//! moment.js
+
+//! version : 2.19.1
+
+//! authors : Tim Wood, Iskren Chernev, Moment.js contributors
+
+//! license : MIT
+
+//! momentjs.com
+
+/**
+  * vee-validate v2.2.9
+  * (c) 2019 Abdelrahman Awad
+  * @license MIT
+  */

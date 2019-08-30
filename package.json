@@ -1,0 +1,51 @@
+{
+  "name": "ANSCIMS",
+  "version": "1.0.0",
+  "description": "ANAMBRA STATE CENTRAL INTEGRATED MANAGEMENT SYSTEM",
+  "author": "Osarenren Enoch, Ismail Olasunkanmi",
+  "private": true,
+  "config": {
+    "nuxt": {
+      "host": "0.0.0.0",
+      "port": 3000
+    }
+  },
+  "scripts": {
+    "now-build": "nuxt build --spa",
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate"
+  },
+  "dependencies": {
+    "@nuxtjs/axios": "^5.3.6",
+    "@nuxtjs/toast": "^3.0.2",
+    "apexcharts": "^3.5.1",
+    "chart.js": "^2.8.0",
+    "cross-env": "^5.2.0",
+    "idle-vue": "^2.0.5",
+    "number-to-words": "^1.2.4",
+    "numeral": "^2.0.6",
+    "nuxt": "^2.4.0",
+    "print-html-element": "^0.5.1",
+    "vee-validate": "^2.2.9",
+    "vue-apexcharts": "^1.3.0",
+    "vue-chartjs": "^3.4.2",
+    "vue-moment": "^4.0.0",
+    "vue-select": "^2.0.1",
+    "vuetify": "^1.5.0",
+    "vuetify-loader": "^1.2.0",
+    "vuex-persistedstate": "^2.5.4"
+  },
+  "devDependencies": {
+    "@mdi/font": "^3.5.95",
+    "eslint-config-prettier": "^3.1.0",
+    "eslint-plugin-prettier": "2.6.2",
+    "node-sass": "^4.11.0",
+    "nodemon": "^1.18.9",
+    "prettier": "1.14.3",
+    "sass-loader": "^7.1.0",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.2"
+  }
+}
